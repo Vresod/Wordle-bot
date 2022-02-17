@@ -48,10 +48,11 @@ async def custom_wordle(ctx:discord.ApplicationContext,number:int = 0,word:str =
 		game.append(blocks)
 		if blocks == ":green_square:" * 5:
 			break
-	if game[-1] != ":green_square:" * 5:
+	if win := (game[-1] != ":green_square:" * 5):
 		await thread.send(word.capitalize())
 	a = "\n"
-	await thread.send(f"Wordle {number if number else '???'} {i+1}/6\n{a.join(game)}")
+	guesses = str(i + 1) if win else "X"
+	await thread.send(f"Wordle {number if number else '???'} {guesses}/6\n{a.join(game)}")
 	await thread.archive(locked=True)
 
 @client.slash_command(name="wordle",guilds_ids=guild_ids)
