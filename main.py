@@ -24,13 +24,13 @@ async def custom_wordle(ctx:discord.ApplicationContext,number:int = 0,word:str =
 	elif not word:
 		word = random.choice(answers)
 	await ctx.respond("Creating thread...",ephemeral=True)
-	thread:discord.Thread = await ctx.channel.create_thread(name=f"{ctx.user.name} Wordle ???",type=discord.ChannelType.public_thread)
+	thread:discord.Thread = await ctx.channel.create_thread(name=f"{ctx.user.name} Wordle {number if number else '???'}",type=discord.ChannelType.public_thread)
 	await thread.add_user(ctx.user)
 	await thread.send("Type a word to get started...")
 	game = []
 	wordtotals = {k:word.count(k) for k in word}
 	for i in range(6):
-		message:discord.Message = await client.wait_for("message",check=lambda m: m.channel == thread and m.content in words and m.author == ctx.user)
+		message:discord.Message = await client.wait_for("message",check=lambda m: m.channel == thread and m.content.lower() in words and m.author == ctx.user)
 		blocks = ""
 		guess = message.content.lower()
 		# guesstotals = {k:guess.count(k) for k in guess}
@@ -48,10 +48,10 @@ async def custom_wordle(ctx:discord.ApplicationContext,number:int = 0,word:str =
 		game.append(blocks)
 		if blocks == ":green_square:" * 5:
 			break
-	if win := (game[-1] != ":green_square:" * 5):
+	if loss := (game[-1] != ":green_square:" * 5):
 		await thread.send(word.capitalize())
 	a = "\n"
-	guesses = str(i + 1) if win else "X"
+	guesses = str(i + 1) if not loss else "X"
 	await thread.send(f"Wordle {number if number else '???'} {guesses}/6\n{a.join(game)}")
 	await thread.archive(locked=True)
 
